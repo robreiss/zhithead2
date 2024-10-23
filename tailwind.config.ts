@@ -8,6 +8,11 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      spacing: {
+        "card-width": `var(--card-width)`,
+        "card-height": `var(--card-height)`,
+        "card-x-overlap": `var(--card-x-overlap)`,
+      },
       colors: {
         background: "var(--background)",
         foreground: "var(--foreground)",

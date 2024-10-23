@@ -2,27 +2,29 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-
-  --og-card-width: 63mm;
-  --og-card-height: 88mm;
-  /* --card-scale-factor: 0.48; */
-  --card-scale-factor: 0.65;
-  --card-width: calc(var(--og-card-width) * var(--card-scale-factor));
-  --card-height: calc(var(--og-card-height) * var(--card-scale-factor));
-}
-
-@media (prefers-color-scheme: dark) {
+@layer base {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
+    --background: #ffffff;
+    --foreground: #171717;
 
-body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+    --og-card-width: 63mm;
+    --og-card-height: 88mm;
+    /* --card-scale-factor: 0.48; */
+    --card-scale-factor: 0.65;
+    --card-width: calc(var(--og-card-width) * var(--card-scale-factor));
+    --card-height: calc(var(--og-card-height) * var(--card-scale-factor));
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --background: #0a0a0a;
+      --foreground: #ededed;
+    }
+  }
+
+  body {
+    color: var(--foreground);
+    background: var(--background);
+    font-family: Arial, Helvetica, sans-serif;
+  }
 }

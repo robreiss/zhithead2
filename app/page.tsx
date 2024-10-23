@@ -54,9 +54,12 @@ export default function ZozCardPage() {
   //   // console.log(JSON.stringify(snapshot.value, null, 2));
   //   return JSON.stringify(snapshot, null, 2);
   // }, [actorRef]);
-
   return (
-    <div className="relative grid h-[calc(100vh)] grid-rows-3 overflow-hidden bg-gradient-to-r from-black via-emerald-800 to-black">
+    <div
+      className="relative grid h-[calc(100vh)] grid-rows-3 overflow-hidden bg-gradient-to-r from-black via-emerald-800 to-black"
+      // className="relative grid grid-rows-3 overflow-hidden bg-gradient-to-r from-black via-emerald-800 to-black"
+      // style={{ height: windowHeight }}
+    >
       <AnimatePresence mode="wait">
         {isMainMenu && (
           <TitleScreenOverlay onPlay={() => send({ type: "NEW_GAME" })} />
@@ -65,9 +68,9 @@ export default function ZozCardPage() {
 
       {isPlaying && (
         <>
-          <div className="debug-info fixed left-0 top-10 z-50 bg-black p-2 text-white">
+          {/* <div className="debug-info fixed left-0 top-10 z-50 bg-black p-2 text-white">
             Renders: {renderCount.current}
-          </div>
+          </div> */}
           <div className="relative">
             <ShownHand playerIndex={1} />
             <div className="absolute top-2 z-10 mx-auto w-full">

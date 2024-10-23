@@ -50,8 +50,8 @@ export default function ShownHand({ playerIndex }: { playerIndex: number }) {
             }}
             grayOut={!isHuman ? undefined : (card) => !canPlay(card, pile)}
             flipped={flipped}
-            // hideCards={!isHuman}
-            hideCards={false}
+            hideCards={!isHuman}
+            // hideCards={false}
           />
         )}
         {shownHand === "offhand" && (

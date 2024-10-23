@@ -173,13 +173,13 @@ export function newGameState() {
   bot.faceUp = bot.hand.splice(0, 3) as OffHandCards;
 
   // uncomment to test faceDown
-  const newdeck = deck.slice(0, 0);
-  human.faceUp = human.hand.splice(0, 3) as OffHandCards;
-  human.hand = [];
+  // const newdeck = deck.slice(0, 0);
+  // human.faceUp = human.hand.splice(0, 3) as OffHandCards;
+  // human.hand = [];
 
   return {
-    // deck: deck,
-    deck: newdeck,
+    deck: deck,
+    // deck: newdeck,
     pile: [],
     players: [human, bot],
     currentTurn: 0,

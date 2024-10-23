@@ -52,14 +52,14 @@ export default function TitleScreenOverlay(props: TitleScreenOverlayProps) {
                   },
                 }}
                 whileTap={{ scale: 0.95 }}
-                src="/scarecrow.png"
-                alt="zozofoz logo"
+                src="/logo/zhithead.png"
+                alt="zhitheadlogo"
                 className="h-56 hover:cursor-help"
               />
               <h1
                 className={`${cormorant.className} text-4xl font-bold tracking-wider text-zinc-100`}
               >
-                Zoz Card
+                ZhitHead
               </h1>
               <p className="font-serif text-sm text-zinc-300">
                 <i>
@@ -109,7 +109,7 @@ export default function TitleScreenOverlay(props: TitleScreenOverlayProps) {
             </div>
 
             <a
-              href="https://l.yatko.dev/zh-src"
+              href="https://github.com/robreiss/zhithead2"
               target="_blank"
               rel="noopener noreferrer"
               className="absolute bottom-0 right-0 p-2 font-mono text-xs tracking-tighter text-zinc-400 underline"
