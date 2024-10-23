@@ -4,7 +4,7 @@
 <p align="center">
   <a href="https://zhithead.yatko.dev">
     <img src="public/logo/zhithead.svg" height="210">
-    <h1 align="center"><b>Zhithead</b></h1>
+    <h1 align="center"><b>Zhithead 2</b></h1>
   </a>
 </p>
 
@@ -22,6 +22,8 @@
 ---
 
 This is a fork (not an actual github fork) of aod's ZhitHead game that can be found at https://github.com/aod/zhithead. I wanted to play with XState version 5 so I ported aod's original ZhitHead game that was written in XState version 4 to version 5.
+
+The project is a vercel/nextjs v15 project.
 
 Thanks aod for the great project, it taught be a lot!
 
