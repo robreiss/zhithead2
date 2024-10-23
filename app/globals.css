@@ -5,6 +5,13 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+
+  --og-card-width: 63mm;
+  --og-card-height: 88mm;
+  /* --card-scale-factor: 0.48; */
+  --card-scale-factor: 0.65;
+  --card-width: calc(var(--og-card-width) * var(--card-scale-factor));
+  --card-height: calc(var(--og-card-height) * var(--card-scale-factor));
 }
 
 @media (prefers-color-scheme: dark) {
