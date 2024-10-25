@@ -1,5 +1,3 @@
-// "use client";
-// import { inspect } from "@/components/jsoninspect";
 import {
   asCards,
   botChooseCard,
@@ -16,14 +14,13 @@ import {
   playerHasCards,
   ShownHand,
 } from "@/lib/zhlib";
-import { assign, raise, setup, SnapshotFrom } from "xstate";
+import { assign, raise, setup } from "xstate";
 
 export interface ZhitHeadContext {
   deck: Card[];
   pile: Card[];
   players: Player[];
   currentTurn: number;
-  persistedState: string | null;
 }
 
 function createInitialContext(): ZhitHeadContext {
@@ -47,9 +44,6 @@ export const ZozCardMachine = setup({
   guards: {
     isFaceUpFull: ({ context }) =>
       context.players.every((player) => offHandLen(player.faceUp) === 3),
-    hasPersistedState: ({ context }) => {
-      return context.persistedState !== null;
-    },
     isGameOver: ({ context }) => {
       return context.players.some((player) => !playerHasCards(player));
     },
@@ -146,35 +140,6 @@ export const ZozCardMachine = setup({
         };
       }
     ),
-    clearPersistedState: () => {
-      localStorage.removeItem("zozCardState");
-    },
-    savePersistedState: ({ self }) => {
-      // We use setTimeout to ensure this runs after the context has been updated
-      setTimeout(() => {
-        const snapshot = self.getPersistedSnapshot() as SnapshotFrom<
-          typeof ZozCardMachine
-        >;
-        const saveState = {
-          context: snapshot.context,
-          value: snapshot.value,
-        };
-        localStorage.setItem("zozCardState", JSON.stringify(saveState));
-      }, 0);
-    },
-    getPersistedState: assign({
-      persistedState: () => {
-        const storedState = localStorage.getItem("zozCardState");
-        return storedState ?? null;
-      },
-    }),
-    loadPersistedState: assign(({ context }) => {
-      const persistedState = context.persistedState;
-      if (!persistedState) return {};
-      const parsedState = JSON.parse(persistedState);
-      parsedState.context.persistedState = null;
-      return parsedState.context;
-    }),
     log: ({ context, event }, param: string) => {
       console.log("XLog:", param, {
         event: event.type,
@@ -364,9 +329,6 @@ export const ZozCardMachine = setup({
         return {}; // Return empty object to avoid state changes on error
       }
     }),
-    updateGameState: assign(() => {
-      return {};
-    }),
     burnPile: assign(() => {
       return {
         pile: [],
@@ -386,6 +348,21 @@ export const ZozCardMachine = setup({
         ),
       };
     }),
+    informPlayerTheirTurn: ({ context, self }) => {
+      // If currentTurn is a bot then choose a card for bot
+      // If human we do nothing and wait for a card chosen event from a click
+      if (context.currentTurn > 0) {
+        const botPlayer = context.players[context.currentTurn];
+        const res = botChooseCard(botPlayer, context.pile);
+        if (res !== undefined) {
+          self.send({ type: "CARD_CHOSEN", card: res[0], n: res[1] });
+        } else if (context.pile.length > 0) {
+          self.send({ type: "TAKE_PILE" });
+        } else {
+          console.error("Bot has no valid card to play");
+        }
+      }
+    },
   },
 }).createMachine({
   id: "zozCardActor",
@@ -395,23 +372,7 @@ export const ZozCardMachine = setup({
   },
   states: {
     mainMenu: {
-      on: { NEW_GAME: "initializing" },
-    },
-    initializing: {
-      entry: [{ type: "getPersistedState" }],
-      always: [
-        {
-          guard: "hasPersistedState",
-          target: "loadingPersistedState",
-        },
-        {
-          target: "shuffling",
-        },
-      ],
-    },
-    loadingPersistedState: {
-      entry: ["loadPersistedState"],
-      always: "playing",
+      on: { NEW_GAME: "shuffling" },
     },
     shuffling: {
       entry: ["shuffleDeck"],
@@ -423,7 +384,6 @@ export const ZozCardMachine = setup({
       states: {
         playLoop: {
           initial: "choosingFaceUpCardsPhase",
-          // initial: "turnLoop",
           states: {
             choosingFaceUpCardsPhase: {
               initial: "checkOffHand",
@@ -442,13 +402,7 @@ export const ZozCardMachine = setup({
                 choosingFaceUpCards: {
                   on: {
                     CARD_CHOSEN: {
-                      actions: [
-                        "playCardToFaceUp",
-                        // {
-                        //   type: "savePersistedState",
-                        //   params: { goto: "blah" },
-                        // },
-                      ],
+                      actions: ["playCardToFaceUp"],
                       target: "checkOffHand",
                     },
                   },
@@ -461,44 +415,17 @@ export const ZozCardMachine = setup({
               },
             },
             turnLoop: {
-              initial: "playingTurn",
+              initial: "turnCycle",
               states: {
                 nextPlayer: {
                   entry: "setNextPlayer",
-                  always: "playingTurn",
+                  always: "turnCycle",
                 },
-                playingTurn: {
-                  initial: "decidePlayerType",
+                turnCycle: {
+                  initial: "playerTurn",
                   states: {
-                    decidePlayerType: {
-                      always: [
-                        { guard: "isCurrentPlayerBot", target: "botTurn" },
-                        { target: "humanTurn" },
-                      ],
-                    },
-                    humanTurn: {
-                      on: {
-                        CARD_CHOSEN: [
-                          {
-                            guard: "isValidFaceDownCardPlay",
-                            actions: "processFaceDownCard",
-                            target: "delayAfterTurn",
-                          },
-                          {
-                            guard: "isValidVisibleCardPlay",
-                            actions: "processChosenCard",
-                            target: "delayAfterTurn",
-                          },
-                        ],
-                        TAKE_PILE: {
-                          guard: "canTakePile",
-                          actions: "takePile",
-                          target: "delayAfterTurn",
-                        },
-                      },
-                    },
-                    botTurn: {
-                      entry: ["botPlayCard"],
+                    playerTurn: {
+                      entry: ["informPlayerTheirTurn"],
                       on: {
                         CARD_CHOSEN: [
                           {
@@ -530,7 +457,6 @@ export const ZozCardMachine = setup({
                       },
                     },
                     afterTurn: {
-                      entry: "updateGameState",
                       always: [
                         {
                           guard: "isGameOver",
@@ -592,7 +518,6 @@ export const ZozCardMachine = setup({
       },
     },
     endScreen: {
-      // entry: "clearPersistedState",
       on: { RETURN_TO_MENU: "mainMenu" },
       after: {
         60000: { target: "mainMenu" },
